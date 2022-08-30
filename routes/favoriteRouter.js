@@ -19,7 +19,6 @@ favoriteRouter.route('/')
     .catch((err)=>{ next(err) });
 })
 
-
 .post( authenticate.verifyOrdinaryUser, function (req, res, next) {
     Favorites.findOne({"user":req.user._id }, function (err, favs) { 
         if(!favs){
@@ -37,7 +36,7 @@ favoriteRouter.route('/')
                 .then((fav)=>{
                     res.statusCode=200;
                     res.setHeader('Content-Type', 'application/json');
-                    res.json(fav);
+                    res.end("Dishes Added!");
                 },(err) => next(err) )
                 .catch((err)=>next(err));    
             }); 
@@ -57,7 +56,7 @@ favoriteRouter.route('/')
             .then((fav)=>{
                 res.statusCode=200;
                 res.setHeader('Content-Type', 'application/json');
-                res.json(favs);
+                res.end("Dishes Added")
             },(err)=>  next(err) )
             .catch((err)=>next(err));        
         }
@@ -75,9 +74,7 @@ favoriteRouter.route('/')
 
 });
 
-
 favoriteRouter.route('/:favsId')
-
 .post( authenticate.verifyOrdinaryUser, function (req, res, next) {
     Favorites.findOne({"user":req.user._id }, function (err, favs) { 
         if(!favs){
@@ -89,10 +86,9 @@ favoriteRouter.route('/:favsId')
                 favs.save(function (err, favs) {
                     if (err) 
                         throw err;
-                    res.json(favs);
+                    res.end("Dish Added!");
                 }); 
             }); 
-
         }
         else{
             var index = favs.dishes.indexOf(req.params.favsId);
@@ -106,20 +102,17 @@ favoriteRouter.route('/:favsId')
                 favs.save(function (err, favs) {
                     if (err) 
                         throw err;
-                    res.json(favs);
+                    res.end("Dish Added!");
                 });
             }
         } 
     });  
 })
 
-
-
-
-
 .delete(authenticate.verifyOrdinaryUser, function(req, res, next){
     Favorites.findOne({user: req.user._id}, function (err, favs) {
-        if (err) throw err;
+        if (err) 
+            throw err;
         if (favs) {
             var index = favs.dishes.indexOf(req.params.favsId);
             if (index > -1) {
@@ -132,13 +125,11 @@ favoriteRouter.route('/:favsId')
             });
         } 
         else {
-            var err = new Error('This Dish is not in the Favorite\'s List');
-            err.status = 401;
+            var err = new Error('No Favorite List exists for selected User');
+            err.status = 404;
             return next(err);
         }
     });
 });
-
-
 
 module.exports = favoriteRouter;
